@@ -39,7 +39,7 @@ void shutdown(int signo){
   if(!is_halting){
     is_halting = 1; /* Prevent double free due to multiple interrupts being fired */
     /* Disable mouse, show the cursor */
-    printf("\e[?1003l\x1b[?25h");
+    printf("\x1b[?1003l\x1b[?25h");
     XCloseDisplay(dpy);
     exit(0);
   }
@@ -76,16 +76,16 @@ void draw(){
   );
 
   /* Enable mouse, hide the cursor, set the cursor position to the top left corner */
-  printf("\e[?1003h\x1b[?25l\x1b[0;0H");
+  printf("\x1b[?1003h\x1b[?25l\x1b[0;0H");
   for(y=0;y<th;y++){
     for(x=0;x<tw;x++){
       p = XGetPixel(img, rw*x, rh*y);
       /* Set background color using truecolor (RGB) */
       printf(
         "\x1b[48;2;%i;%i;%im ",
-        p >> 16,
-        (p >> 8) & 0xff,
-        p & 0xff
+        (char)(p >> 16),
+        (char)((p >> 8) & 0xff),
+        (char)(p & 0xff)
       );
     }
   }
@@ -110,8 +110,11 @@ void resize(int signo){
  * Send a mouse event
  */
 void mouse(int button, int state, int x, int y){
-  /*char buf[256];
-  sprintf(buf, "xdotool mousemove %i %i", x, y);
+  /*
+  char buf[256];
+  sprintf(buf, "xdotool mousemove %i %i", rw*x, rh*y);
+  system(buf);
+  sprintf(buf, "xdotool %s %i", (state == 1 ? "mousedown" : "mouseup"), button);
   system(buf);
   */
 }
@@ -135,9 +138,9 @@ void loop(){
   int i, count;
   char c, buf[6];
   XEvent evt;
-  XDamageNotifyEvent *dmg;
+  /*XDamageNotifyEvent *dmg;*/
   XserverRegion region;
-  XRectangle *area, rect;
+  XRectangle *area;/*, rect;*/
 
   /* Read from both the X display as well as stdin */
   int n_ready_fds;
@@ -168,7 +171,7 @@ void loop(){
       }
     }
     if(evt.type == dmg_evt+XDamageNotify){
-      dmg = (XDamageNotifyEvent*)&evt;
+      /*dmg = (XDamageNotifyEvent*)&evt;*/
       region = XFixesCreateRegion(dpy, NULL, 0);
       XDamageSubtract(
         dpy,
@@ -179,14 +182,14 @@ void loop(){
       area = XFixesFetchRegion(dpy, region, &count);
       if(area){
         for(i=0;i<count;i++){
-          rect = area[i];
+          /*rect = area[i];*/
           draw();
-//          draw(rect.x, rect.y);
+          /*draw(rect.x, rect.y);*/
         }
       }
       XFixesDestroyRegion(dpy, region);
       XFree(area);
-      usleep(500000);
+      sleep(1);
     }
   } else if(n_ready_fds == 0){
     draw();
@@ -231,7 +234,7 @@ int x(){
   return 0;
 }
 
-int main(int argc){
+int main(int argc, char **argv){
   if(argc > 1){ help(); }
   if(x()){ return 1; }
   sighandlers();

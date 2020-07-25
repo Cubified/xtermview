@@ -3,8 +3,8 @@ all: xtermview
 CC=gcc
 
 LIBS=-lX11 -lXdamage -lXfixes
-CFLAGS=-Os -pipe -s
-DEBUGCFLAGS=-Og -pipe -g
+CFLAGS=-Os -pipe -s -ansi -pedantic -Wall
+DEBUGCFLAGS=-Og -pipe -g -ansi -pedantic -Wall
 
 INPUT=xtermview.c
 OUTPUT=xtermview

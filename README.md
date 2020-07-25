@@ -23,6 +23,10 @@ A terminal-based X server viewer.  Currently a work in progress, but reasonably 
 
 To exit, press `Ctrl+C`.
 
+### Notes
+
+- Some colors (most notably RGB #000000) will break with [base16 colorschemes](https://github.com/chriskempson/base16).
+
 ### To-Do
 
 - Proper keyboard and mouse support (detection and handling is there, but dispatching to X is not)
